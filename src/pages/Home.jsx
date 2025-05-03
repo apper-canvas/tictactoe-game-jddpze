@@ -19,6 +19,8 @@ export default function Home() {
   const CircleIcon = getIcon('Circle');
   const MinusIcon = getIcon('Minus');
   const TrophyIcon = getIcon('Trophy');
+  const ChevronUpIcon = getIcon('ChevronUp');
+  const ChevronDownIcon = getIcon('ChevronDown');
 
   // Update game stats when game ends
   const updateGameStats = (result) => {
@@ -136,7 +138,11 @@ export default function Home() {
                 className="btn btn-outline w-full flex justify-between items-center"
               >
                 <span>{showInstructions ? "Hide Instructions" : "Show Instructions"}</span>
-                {getIcon(showInstructions ? "ChevronUp" : "ChevronDown")({ className: "w-5 h-5" })}
+                {showInstructions ? (
+                  <ChevronUpIcon className="w-5 h-5" />
+                ) : (
+                  <ChevronDownIcon className="w-5 h-5" />
+                )}
               </button>
             </div>
             
