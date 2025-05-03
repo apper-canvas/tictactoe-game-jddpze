@@ -36,7 +36,7 @@ function App() {
       <header className="py-4 px-4 md:px-6 lg:px-8 flex justify-between items-center shadow-md bg-white dark:bg-surface-800 backdrop-blur-sm bg-white/90 dark:bg-surface-800/90 sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <GamepadIcon className="w-6 h-6 text-primary" />
-          <h1 className="text-2xl font-bold gradient-heading">Tic Tac Toe Game</h1>
+          <h1 className="text-2xl font-bold gradient-heading">Ultimate Tic Tac Toe</h1>
         </div>
         <motion.button 
           onClick={toggleDarkMode}
