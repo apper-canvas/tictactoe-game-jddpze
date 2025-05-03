@@ -131,10 +131,18 @@ export default function MainFeature({ onGameEnd }) {
     let cellClass = "game-cell relative ";
     
     if (board[index] === 'X') {
-      content = <XIcon className="w-8 h-8 md:w-12 md:h-12 text-primary x-shadow" />;
+      content = (
+        <div className="flex items-center justify-center w-full h-full">
+          <XIcon className="w-12 h-12 md:w-16 md:h-16 text-primary x-shadow" />
+        </div>
+      );
       cellClass += "game-cell-x ";
     } else if (board[index] === 'O') {
-      content = <CircleIcon className="w-8 h-8 md:w-12 md:h-12 text-secondary o-shadow" />;
+      content = (
+        <div className="flex items-center justify-center w-full h-full">
+          <CircleIcon className="w-12 h-12 md:w-16 md:h-16 text-secondary o-shadow" />
+        </div>
+      );
       cellClass += "game-cell-o ";
     } else {
       cellClass += "game-cell-default ";
@@ -178,6 +186,7 @@ export default function MainFeature({ onGameEnd }) {
                 stiffness: 260,
                 damping: 20
               }}
+              className="w-full h-full flex items-center justify-center"
             >
               {content}
             </motion.div>
@@ -306,7 +315,7 @@ export default function MainFeature({ onGameEnd }) {
             </div>
             
             {/* Game grid */}
-            <div className="game-board mb-8 relative">
+            <div className="game-board mb-8 relative p-4">
               {/* Grid lines for visual enhancement */}
               <div className="game-board-lines">
                 {/* Horizontal lines */}
