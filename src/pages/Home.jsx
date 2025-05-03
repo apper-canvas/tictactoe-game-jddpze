@@ -19,10 +19,11 @@ export default function Home() {
   const CircleIcon = getIcon('Circle');
   const MinusIcon = getIcon('Minus');
   const TrophyIcon = getIcon('Trophy');
-  const ChevronUpIcon = getIcon('ChevronUp');
   const ChevronDownIcon = getIcon('ChevronDown');
   const GamepadIcon = getIcon('Gamepad');
   const BarChart2Icon = getIcon('BarChart2');
+  const SparklesIcon = getIcon('Sparkles');
+  const AwardIcon = getIcon('Award');
 
   // Update game stats when game ends
   const updateGameStats = (result) => {
@@ -42,11 +43,11 @@ export default function Home() {
     // Show a toast message for the result
     if (result === 'X') {
       toast.success('Player X wins the game!', {
-        icon: () => <XIcon className="w-5 h-5 text-primary" />
+        icon: () => <XIcon className="w-5 h-5 text-primary x-shadow" />
       });
     } else if (result === 'O') {
       toast.success('Player O wins the game!', {
-        icon: () => <CircleIcon className="w-5 h-5 text-secondary" />
+        icon: () => <CircleIcon className="w-5 h-5 text-secondary o-shadow" />
       });
     } else if (result === 'draw') {
       toast.info('The game ended in a draw!', {
@@ -76,19 +77,33 @@ export default function Home() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-12"
       >
-        <div className="inline-flex items-center justify-center space-x-2 mb-2">
-          <GamepadIcon className="w-8 h-8 text-primary" />
-          <h1 className="gradient-heading text-shadow font-bold">
-            Tic Tac Toe
-          </h1>
+        <div className="inline-flex items-center justify-center mb-4">
+          <motion.div
+            animate={{ 
+              rotate: [0, 10, 0, -10, 0],
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              repeatType: "loop", 
+              duration: 5,
+              ease: "easeInOut"
+            }}
+            className="relative"
+          >
+            <SparklesIcon className="absolute text-yellow-400 w-12 h-12 star-glow -top-6 -right-6" />
+            <GamepadIcon className="w-16 h-16 text-primary icon-glow" />
+          </motion.div>
         </div>
+        <h1 className="gradient-heading text-shadow font-bold text-5xl md:text-6xl mb-4">
+          Tic Tac Toe
+        </h1>
         <motion.p 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="text-lg text-surface-600 dark:text-surface-300 max-w-2xl mx-auto"
         >
-          Play the classic game of X's and O's. Take turns to mark spaces on the 3x3 grid and be the first to get three in a row!
+          The classic game of X's and O's, reimagined. Take turns, mark spaces, and be the first to get three in a row!
         </motion.p>
       </motion.div>
       
@@ -103,59 +118,79 @@ export default function Home() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="glass-card card-hover"
+            className="glass-card card-hover shadow-lg overflow-hidden relative rounded-2xl border-2 border-surface-200/50 dark:border-surface-700/50"
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-surface-700/40 dark:to-transparent opacity-50 pointer-events-none"></div>
+            
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <BarChart2Icon className="w-6 h-6 text-primary" />
+                <BarChart2Icon className="w-6 h-6 text-primary icon-glow" />
                 <h3 className="text-xl font-bold">Game Statistics</h3>
               </div>
-              <TrophyIcon className="w-6 h-6 text-accent" />
+              <motion.div
+                animate={{ 
+                  y: [0, -5, 0, -5, 0],
+                  rotate: [0, 10, 0, -10, 0]
+                }}
+                transition={{ 
+                  duration: 3,
+                  repeat: Infinity,
+                  repeatType: "loop"
+                }}
+              >
+                <TrophyIcon className="w-7 h-7 text-yellow-500 icon-glow" />
+              </motion.div>
             </div>
             
             <div className="grid grid-cols-3 gap-4 text-center mb-6">
-              <div className="stat-card bg-primary/10 dark:bg-primary/20">
-                <XIcon className="w-8 h-8 text-primary mb-2" />
+              <div className="stat-card from-primary/5 to-primary/20 dark:from-primary/10 dark:to-primary/30 border-2 border-primary/20">
+                <XIcon className="w-9 h-9 text-primary x-shadow mb-2" />
                 <span className="text-sm text-surface-600 dark:text-surface-300">X Wins</span>
                 <div className="text-2xl font-bold text-primary">{gameStats.xWins}</div>
-                <div className="text-xs mt-1">{xWinPercentage}%</div>
-                <div className="w-full h-1 bg-surface-200 dark:bg-surface-700 mt-2 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary rounded-full transition-all duration-500" 
-                    style={{ width: `${xWinPercentage}%` }}
+                <div className="text-xs mt-1 text-primary/80">{xWinPercentage}%</div>
+                <div className="w-full h-2 bg-surface-200 dark:bg-surface-700 mt-2 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${xWinPercentage}%` }}
+                    transition={{ duration: 1, delay: 0.5 }}
+                    className="h-full bg-primary rounded-full" 
                   />
                 </div>
               </div>
               
-              <div className="stat-card bg-secondary/10 dark:bg-secondary/20">
-                <CircleIcon className="w-8 h-8 text-secondary mb-2" />
+              <div className="stat-card from-secondary/5 to-secondary/20 dark:from-secondary/10 dark:to-secondary/30 border-2 border-secondary/20">
+                <CircleIcon className="w-9 h-9 text-secondary o-shadow mb-2" />
                 <span className="text-sm text-surface-600 dark:text-surface-300">O Wins</span>
                 <div className="text-2xl font-bold text-secondary">{gameStats.oWins}</div>
-                <div className="text-xs mt-1">{oWinPercentage}%</div>
-                <div className="w-full h-1 bg-surface-200 dark:bg-surface-700 mt-2 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-secondary rounded-full transition-all duration-500" 
-                    style={{ width: `${oWinPercentage}%` }}
+                <div className="text-xs mt-1 text-secondary/80">{oWinPercentage}%</div>
+                <div className="w-full h-2 bg-surface-200 dark:bg-surface-700 mt-2 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${oWinPercentage}%` }}
+                    transition={{ duration: 1, delay: 0.7 }}
+                    className="h-full bg-secondary rounded-full" 
                   />
                 </div>
               </div>
               
-              <div className="stat-card bg-surface-100 dark:bg-surface-700/70">
-                <MinusIcon className="w-8 h-8 text-surface-500 mb-2" />
+              <div className="stat-card from-surface-100 to-surface-200 dark:from-surface-700 dark:to-surface-800 border-2 border-surface-300/30 dark:border-surface-600/30">
+                <MinusIcon className="w-9 h-9 text-surface-500 mb-2" />
                 <span className="text-sm text-surface-600 dark:text-surface-300">Draws</span>
                 <div className="text-2xl font-bold text-surface-600">{gameStats.draws}</div>
-                <div className="text-xs mt-1">{drawPercentage}%</div>
-                <div className="w-full h-1 bg-surface-200 dark:bg-surface-700 mt-2 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-surface-500 rounded-full transition-all duration-500" 
-                    style={{ width: `${drawPercentage}%` }}
+                <div className="text-xs mt-1 text-surface-500">{drawPercentage}%</div>
+                <div className="w-full h-2 bg-surface-200 dark:bg-surface-700 mt-2 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${drawPercentage}%` }}
+                    transition={{ duration: 1, delay: 0.9 }}
+                    className="h-full bg-surface-500 rounded-full" 
                   />
                 </div>
               </div>
             </div>
             
             <div className="pt-4 border-t border-surface-200 dark:border-surface-700 flex justify-center items-center gap-2">
-              <TrophyIcon className="w-5 h-5 text-accent" />
+              <AwardIcon className="w-5 h-5 text-yellow-500" />
               <p className="text-surface-600 dark:text-surface-400">
                 Total Games: <span className="font-bold">{gameStats.totalGames}</span>
               </p>
@@ -167,37 +202,47 @@ export default function Home() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="glass-card card-hover"
+            className="glass-card card-hover shadow-lg relative rounded-2xl border-2 border-surface-200/50 dark:border-surface-700/50"
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-surface-700/40 dark:to-transparent opacity-50 pointer-events-none"></div>
+            
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <InfoIcon className="w-6 h-6 text-primary" />
+                <InfoIcon className="w-6 h-6 text-primary icon-glow" />
                 <h3 className="text-xl font-bold">How to Play</h3>
               </div>
             </div>
             
             <div className="mb-4">
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setShowInstructions(!showInstructions)}
-                className="btn btn-outline w-full flex justify-between items-center"
+                className="btn w-full flex justify-between items-center py-3 bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 border-2 border-surface-200/70 dark:border-surface-600/50 rounded-xl shadow-md"
               >
-                <span>{showInstructions ? "Hide Instructions" : "Show Instructions"}</span>
+                <span className="font-medium">{showInstructions ? "Hide Instructions" : "Show Instructions"}</span>
                 <motion.div
                   animate={{ rotate: showInstructions ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
                 >
                   <ChevronDownIcon className="w-5 h-5" />
                 </motion.div>
-              </button>
+              </motion.button>
             </div>
             
-            {showInstructions && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="text-surface-700 dark:text-surface-300 space-y-3 text-sm bg-surface-50 dark:bg-surface-800 p-4 rounded-lg"
-              >
+            <motion.div
+              initial={false}
+              animate={{
+                height: showInstructions ? "auto" : 0,
+                opacity: showInstructions ? 1 : 0
+              }}
+              transition={{
+                height: { duration: 0.3 },
+                opacity: { duration: 0.2, delay: showInstructions ? 0.1 : 0 }
+              }}
+              className="overflow-hidden"
+            >
+              <div className="text-surface-700 dark:text-surface-300 space-y-3 text-sm bg-gradient-to-br from-surface-50/90 to-surface-100/80 dark:from-surface-800/90 dark:to-surface-700/80 p-4 rounded-xl border border-surface-200/50 dark:border-surface-600/50 backdrop-blur-sm">
                 <p className="flex items-center gap-2">
                   <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary font-medium">1</span>
                   The game is played on a 3x3 grid.
@@ -218,8 +263,8 @@ export default function Home() {
                   <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary font-medium">5</span>
                   Click "New Game" to start over at any time.
                 </p>
-              </motion.div>
-            )}
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>

@@ -23,6 +23,7 @@ export default function MainFeature({ onGameEnd }) {
   const PanelRightOpenIcon = getIcon('PanelRightOpen');
   const HistoryIcon = getIcon('History');
   const SparklesIcon = getIcon('Sparkles');
+  const GamepadIcon = getIcon('Gamepad');
 
   // Check for winner
   const calculateWinner = (squares) => {
@@ -99,7 +100,7 @@ export default function MainFeature({ onGameEnd }) {
     setHighlightedCell(null);
     
     toast.info('Starting a new game!', {
-      icon: () => <SparklesIcon className="w-5 h-5 text-primary" />
+      icon: () => <SparklesIcon className="w-5 h-5 text-yellow-500 star-glow" />
     });
   };
 
@@ -127,13 +128,13 @@ export default function MainFeature({ onGameEnd }) {
   // Function to determine what to render in each square
   const renderSquare = (index) => {
     let content = null;
-    let cellClass = "game-cell ";
+    let cellClass = "game-cell relative ";
     
     if (board[index] === 'X') {
-      content = <XIcon className="w-8 h-8 md:w-12 md:h-12 text-primary" />;
+      content = <XIcon className="w-8 h-8 md:w-12 md:h-12 text-primary x-shadow" />;
       cellClass += "game-cell-x ";
     } else if (board[index] === 'O') {
-      content = <CircleIcon className="w-8 h-8 md:w-12 md:h-12 text-secondary" />;
+      content = <CircleIcon className="w-8 h-8 md:w-12 md:h-12 text-secondary o-shadow" />;
       cellClass += "game-cell-o ";
     } else {
       cellClass += "game-cell-default ";
@@ -141,7 +142,7 @@ export default function MainFeature({ onGameEnd }) {
     
     const isWinningSquare = winningLine?.includes(index);
     if (isWinningSquare) {
-      cellClass += "game-cell-win ";
+      cellClass += "game-cell-win pulse-win ";
     }
     
     const isHighlighted = highlightedCell === index;
@@ -158,7 +159,7 @@ export default function MainFeature({ onGameEnd }) {
           scale: [1, 1.1, 1],
           boxShadow: [
             "0 0 0 rgba(0,0,0,0)",
-            "0 0 15px rgba(99,102,241,0.5)",
+            "0 0 20px rgba(99,102,241,0.6)",
             "0 0 0 rgba(0,0,0,0)"
           ]
         } : {}}
@@ -171,7 +172,12 @@ export default function MainFeature({ onGameEnd }) {
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               exit={{ scale: 0, rotate: 180 }}
-              transition={{ duration: 0.2 }}
+              transition={{ 
+                duration: 0.3,
+                type: "spring",
+                stiffness: 260,
+                damping: 20
+              }}
             >
               {content}
             </motion.div>
@@ -184,14 +190,15 @@ export default function MainFeature({ onGameEnd }) {
   // Confetti effect component for winners
   const Confetti = () => (
     <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-      {Array.from({ length: 100 }).map((_, i) => (
+      {Array.from({ length: 150 }).map((_, i) => (
         <motion.div
           key={i}
           initial={{ 
             y: -20, 
             x: Math.random() * window.innerWidth,
             rotate: Math.random() * 360,
-            opacity: 1
+            opacity: 1,
+            scale: Math.random() * 0.5 + 0.5
           }}
           animate={{ 
             y: window.innerHeight + 100,
@@ -199,11 +206,13 @@ export default function MainFeature({ onGameEnd }) {
             opacity: 0
           }}
           transition={{ 
-            duration: Math.random() * 2 + 2,
+            duration: Math.random() * 3 + 2,
             ease: "linear",
             delay: Math.random() * 3
           }}
-          className={`absolute w-3 h-3 rounded-full ${
+          className={`absolute w-3 h-3 ${
+            Math.random() > 0.7 ? 'rounded-full' : 'rounded-sm rotate-45'
+          } ${
             Math.random() > 0.5 
               ? (Math.random() > 0.5 ? 'bg-primary' : 'bg-primary-light')
               : (Math.random() > 0.5 ? 'bg-secondary' : 'bg-secondary-light')
@@ -227,15 +236,15 @@ export default function MainFeature({ onGameEnd }) {
   // Status message styling
   const getStatusClass = () => {
     if (winner === 'X') {
-      return 'bg-primary/20 text-primary border-primary/30';
+      return 'border-primary text-primary bg-primary/10';
     } else if (winner === 'O') {
-      return 'bg-secondary/20 text-secondary border-secondary/30';
+      return 'border-secondary text-secondary bg-secondary/10';
     } else if (winner === 'draw') {
-      return 'bg-surface-200 dark:bg-surface-700 border-surface-300 dark:border-surface-600';
+      return 'border-surface-400 dark:border-surface-500 bg-surface-200 dark:bg-surface-700';
     } else {
       return isXNext 
-        ? 'bg-primary/10 text-primary border-primary/20' 
-        : 'bg-secondary/10 text-secondary border-secondary/20';
+        ? 'border-primary text-primary bg-primary/5' 
+        : 'border-secondary text-secondary bg-secondary/5';
     }
   };
 
@@ -246,53 +255,69 @@ export default function MainFeature({ onGameEnd }) {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-card relative overflow-hidden"
+        className="card shadow-lg backdrop-blur-sm relative overflow-hidden border-2 border-surface-200/50 dark:border-surface-700/50 rounded-2xl"
       >
+        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-surface-700/40 dark:to-transparent opacity-50 pointer-events-none"></div>
+        
         <div className="md:flex md:justify-between md:items-start gap-6">
           <div className="md:flex-1">
             <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-2">
-                <SparklesIcon className="w-6 h-6 text-accent" />
-                <h2 className="text-2xl font-bold">Game Board</h2>
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 10, 0, -10, 0],
+                  }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    repeatType: "loop", 
+                    duration: 5,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <GamepadIcon className="w-8 h-8 text-primary icon-glow" />
+                </motion.div>
+                <h2 className="text-2xl font-bold gradient-heading">Game Board</h2>
               </div>
               <button
                 onClick={() => setShowHistoryPanel(!showHistoryPanel)}
-                className="btn btn-outline p-2 md:hidden"
+                className="btn btn-outline p-2 md:hidden rounded-full"
                 aria-label="Toggle history panel"
               >
                 {showHistoryPanel ? <PanelRightCloseIcon className="w-5 h-5" /> : <PanelRightOpenIcon className="w-5 h-5" />}
               </button>
             </div>
             
-            <div className="game-status shadow-md border-2 rounded-xl" 
-              style={{ 
-                boxShadow: winner 
-                  ? winner === 'X' 
-                    ? '0 4px 14px rgba(99, 102, 241, 0.2)' 
-                    : winner === 'O' 
-                      ? '0 4px 14px rgba(236, 72, 153, 0.2)'
-                      : '0 4px 14px rgba(100, 116, 139, 0.2)'
-                  : isXNext
-                    ? '0 4px 14px rgba(99, 102, 241, 0.1)'
-                    : '0 4px 14px rgba(236, 72, 153, 0.1)'
-              }}
-              className={`game-status ${getStatusClass()}`}>
+            <div className={`game-status ${getStatusClass()} shadow-lg`}>
               <div className="flex items-center justify-center gap-2">
                 {winner === 'X' ? (
-                  <XIcon className="w-6 h-6 text-primary" />
+                  <XIcon className="w-6 h-6 text-primary x-shadow" />
                 ) : winner === 'O' ? (
-                  <CircleIcon className="w-6 h-6 text-secondary" />
+                  <CircleIcon className="w-6 h-6 text-secondary o-shadow" />
                 ) : isXNext ? (
-                  <XIcon className="w-6 h-6 text-primary" />
+                  <XIcon className="w-6 h-6 text-primary x-shadow" />
                 ) : (
-                  <CircleIcon className="w-6 h-6 text-secondary" />
+                  <CircleIcon className="w-6 h-6 text-secondary o-shadow" />
                 )}
                 <span className="font-bold">{getStatusMessage()}</span>
+                {winner && winner !== 'draw' && 
+                  <SparklesIcon className="w-5 h-5 text-yellow-500 star-glow" />
+                }
               </div>
             </div>
             
             {/* Game grid */}
-            <div className="game-board mb-6">
+            <div className="game-board mb-8 relative">
+              {/* Grid lines for visual enhancement */}
+              <div className="game-board-lines">
+                {/* Horizontal lines */}
+                <div className="grid-line horizontal-line" style={{ top: '33.33%' }}></div>
+                <div className="grid-line horizontal-line" style={{ top: '66.66%' }}></div>
+                
+                {/* Vertical lines */}
+                <div className="grid-line vertical-line" style={{ left: '33.33%' }}></div>
+                <div className="grid-line vertical-line" style={{ left: '66.66%' }}></div>
+              </div>
+              
               {Array(9).fill(null).map((_, i) => (
                 <div key={i}>
                   {renderSquare(i)}
@@ -305,7 +330,7 @@ export default function MainFeature({ onGameEnd }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleNewGame}
-                className="btn btn-primary flex items-center gap-2 px-6 py-3 rounded-xl shadow-md"
+                className="btn flex items-center gap-2 px-6 py-3 rounded-xl shadow-lg bg-gradient-to-r from-primary to-primary-dark text-white"
               >
                 <RotateCcwIcon className="w-5 h-5" />
                 New Game
@@ -320,16 +345,28 @@ export default function MainFeature({ onGameEnd }) {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 50 }}
-                className="mt-8 md:mt-0 md:w-64 bg-surface-50/80 dark:bg-surface-800/50 rounded-xl p-4 shadow-inner border border-surface-200/50 dark:border-surface-700/50 backdrop-blur-sm"
+                className="mt-8 md:mt-0 md:w-64 bg-gradient-to-br from-surface-50/90 to-surface-100/80 dark:from-surface-800/90 dark:to-surface-700/80 rounded-xl p-4 shadow-inner border border-surface-200/50 dark:border-surface-700/50 backdrop-blur-sm"
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <HistoryIcon className="w-5 h-5 text-primary" />
+                  <HistoryIcon className="w-5 h-5 text-primary icon-glow" />
                   <h3 className="text-lg font-semibold">Move History</h3>
                 </div>
                 
                 {gameHistory.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <ClockIcon className="w-8 h-8 text-surface-400 mb-2 opacity-50" />
+                    <motion.div
+                      animate={{ 
+                        y: [0, -5, 0],
+                      }}
+                      transition={{ 
+                        repeat: Infinity, 
+                        repeatType: "loop", 
+                        duration: 2,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      <ClockIcon className="w-10 h-10 text-surface-400 mb-2 opacity-50" />
+                    </motion.div>
                     <p className="text-surface-500 dark:text-surface-400 text-sm">
                       No moves yet. Start playing!
                     </p>
