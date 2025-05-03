@@ -12,6 +12,7 @@ export default function MainFeature({ onGameEnd }) {
   const [gameHistory, setGameHistory] = useState([]);
   const [showHistoryPanel, setShowHistoryPanel] = useState(false);
   const [isConfettiFalling, setIsConfettiFalling] = useState(false);
+  const [highlightedCell, setHighlightedCell] = useState(null);
 
   // Icon components
   const XIcon = getIcon('X');
@@ -20,6 +21,8 @@ export default function MainFeature({ onGameEnd }) {
   const ClockIcon = getIcon('Clock');
   const PanelRightCloseIcon = getIcon('PanelRightClose');
   const PanelRightOpenIcon = getIcon('PanelRightOpen');
+  const HistoryIcon = getIcon('History');
+  const SparklesIcon = getIcon('Sparkles');
 
   // Check for winner
   const calculateWinner = (squares) => {
@@ -66,8 +69,23 @@ export default function MainFeature({ onGameEnd }) {
       position: index
     }]);
     
+    // Highlight the last played cell
+    setHighlightedCell(index);
+    setTimeout(() => setHighlightedCell(null), 1000);
+    
     // Switch turn
     setIsXNext(!isXNext);
+    
+    // Play sound effect
+    playMoveSound(isXNext ? 'X' : 'O');
+  };
+
+  // Play sound effect for moves
+  const playMoveSound = (player) => {
+    // This is a placeholder for sound effect implementation
+    // In a real implementation, you would use Audio API
+    // const sound = new Audio(player === 'X' ? '/sounds/x-move.mp3' : '/sounds/o-move.mp3');
+    // sound.play();
   };
 
   // Start a new game
@@ -78,6 +96,11 @@ export default function MainFeature({ onGameEnd }) {
     setWinningLine(null);
     setGameHistory([]);
     setIsConfettiFalling(false);
+    setHighlightedCell(null);
+    
+    toast.info('Starting a new game!', {
+      icon: () => <SparklesIcon className="w-5 h-5 text-primary" />
+    });
   };
 
   // Check for winner after each move
@@ -104,31 +127,56 @@ export default function MainFeature({ onGameEnd }) {
   // Function to determine what to render in each square
   const renderSquare = (index) => {
     let content = null;
+    let cellClass = "game-cell ";
     
     if (board[index] === 'X') {
       content = <XIcon className="w-8 h-8 md:w-12 md:h-12 text-primary" />;
+      cellClass += "game-cell-x ";
     } else if (board[index] === 'O') {
       content = <CircleIcon className="w-8 h-8 md:w-12 md:h-12 text-secondary" />;
+      cellClass += "game-cell-o ";
+    } else {
+      cellClass += "game-cell-default ";
     }
     
     const isWinningSquare = winningLine?.includes(index);
+    if (isWinningSquare) {
+      cellClass += "game-cell-win ";
+    }
+    
+    const isHighlighted = highlightedCell === index;
     
     return (
       <motion.button 
-        whileHover={{ scale: board[index] ? 1 : 1.05 }}
-        whileTap={{ scale: board[index] ? 1 : 0.95 }}
+        whileHover={{ scale: board[index] || winner ? 1 : 1.05 }}
+        whileTap={{ scale: board[index] || winner ? 1 : 0.95 }}
         onClick={() => handleClick(index)}
         disabled={!!board[index] || !!winner}
-        className={`
-          aspect-square flex items-center justify-center 
-          border-2 border-surface-300 dark:border-surface-600
-          ${isWinningSquare ? 'bg-green-100 dark:bg-green-900' : 'bg-white dark:bg-surface-800'}
-          ${!board[index] && !winner ? 'hover:bg-surface-100 dark:hover:bg-surface-700 cursor-pointer' : ''}
-          text-4xl font-bold transition-colors duration-200
-        `}
+        className={cellClass}
         aria-label={`Square ${index + 1}`}
+        animate={isHighlighted ? { 
+          scale: [1, 1.1, 1],
+          boxShadow: [
+            "0 0 0 rgba(0,0,0,0)",
+            "0 0 15px rgba(99,102,241,0.5)",
+            "0 0 0 rgba(0,0,0,0)"
+          ]
+        } : {}}
+        transition={isHighlighted ? { duration: 0.5 } : {}}
       >
-        {content}
+        <AnimatePresence mode="wait">
+          {content && (
+            <motion.div
+              key={board[index]}
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 180 }}
+              transition={{ duration: 0.2 }}
+            >
+              {content}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.button>
     );
   };
@@ -176,6 +224,21 @@ export default function MainFeature({ onGameEnd }) {
     }
   };
 
+  // Status message styling
+  const getStatusClass = () => {
+    if (winner === 'X') {
+      return 'bg-primary/20 text-primary border-primary/30';
+    } else if (winner === 'O') {
+      return 'bg-secondary/20 text-secondary border-secondary/30';
+    } else if (winner === 'draw') {
+      return 'bg-surface-200 dark:bg-surface-700 border-surface-300 dark:border-surface-600';
+    } else {
+      return isXNext 
+        ? 'bg-primary/10 text-primary border-primary/20' 
+        : 'bg-secondary/10 text-secondary border-secondary/20';
+    }
+  };
+
   return (
     <div className="relative">
       {isConfettiFalling && <Confetti />}
@@ -183,12 +246,15 @@ export default function MainFeature({ onGameEnd }) {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card relative overflow-hidden"
+        className="glass-card relative overflow-hidden"
       >
         <div className="md:flex md:justify-between md:items-start gap-6">
           <div className="md:flex-1">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Game Board</h2>
+              <div className="flex items-center gap-2">
+                <SparklesIcon className="w-6 h-6 text-accent" />
+                <h2 className="text-2xl font-bold">Game Board</h2>
+              </div>
               <button
                 onClick={() => setShowHistoryPanel(!showHistoryPanel)}
                 className="btn btn-outline p-2 md:hidden"
@@ -198,19 +264,35 @@ export default function MainFeature({ onGameEnd }) {
               </button>
             </div>
             
-            <div className="mb-6">
-              <div className={`text-lg font-medium p-3 rounded-lg text-center ${
-                winner === 'X' ? 'bg-primary/10 text-primary' :
-                winner === 'O' ? 'bg-secondary/10 text-secondary' :
-                winner === 'draw' ? 'bg-surface-200 dark:bg-surface-700' :
-                isXNext ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'
-              }`}>
-                {getStatusMessage()}
+            <div className="game-status shadow-md border-2 rounded-xl" 
+              style={{ 
+                boxShadow: winner 
+                  ? winner === 'X' 
+                    ? '0 4px 14px rgba(99, 102, 241, 0.2)' 
+                    : winner === 'O' 
+                      ? '0 4px 14px rgba(236, 72, 153, 0.2)'
+                      : '0 4px 14px rgba(100, 116, 139, 0.2)'
+                  : isXNext
+                    ? '0 4px 14px rgba(99, 102, 241, 0.1)'
+                    : '0 4px 14px rgba(236, 72, 153, 0.1)'
+              }}
+              className={`game-status ${getStatusClass()}`}>
+              <div className="flex items-center justify-center gap-2">
+                {winner === 'X' ? (
+                  <XIcon className="w-6 h-6 text-primary" />
+                ) : winner === 'O' ? (
+                  <CircleIcon className="w-6 h-6 text-secondary" />
+                ) : isXNext ? (
+                  <XIcon className="w-6 h-6 text-primary" />
+                ) : (
+                  <CircleIcon className="w-6 h-6 text-secondary" />
+                )}
+                <span className="font-bold">{getStatusMessage()}</span>
               </div>
             </div>
             
             {/* Game grid */}
-            <div className="grid grid-cols-3 gap-2 md:gap-4 max-w-md mx-auto">
+            <div className="game-board mb-6">
               {Array(9).fill(null).map((_, i) => (
                 <div key={i}>
                   {renderSquare(i)}
@@ -218,12 +300,12 @@ export default function MainFeature({ onGameEnd }) {
               ))}
             </div>
             
-            <div className="mt-6 flex justify-center">
+            <div className="flex justify-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleNewGame}
-                className="btn btn-primary flex items-center gap-2"
+                className="btn btn-primary flex items-center gap-2 px-6 py-3 rounded-xl shadow-md"
               >
                 <RotateCcwIcon className="w-5 h-5" />
                 New Game
@@ -238,23 +320,29 @@ export default function MainFeature({ onGameEnd }) {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 50 }}
-                className="mt-8 md:mt-0 md:w-64 bg-surface-100 dark:bg-surface-700/50 rounded-lg p-4"
+                className="mt-8 md:mt-0 md:w-64 bg-surface-50/80 dark:bg-surface-800/50 rounded-xl p-4 shadow-inner border border-surface-200/50 dark:border-surface-700/50 backdrop-blur-sm"
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <ClockIcon className="w-5 h-5 text-surface-500" />
+                  <HistoryIcon className="w-5 h-5 text-primary" />
                   <h3 className="text-lg font-semibold">Move History</h3>
                 </div>
                 
                 {gameHistory.length === 0 ? (
-                  <p className="text-surface-500 dark:text-surface-400 text-sm text-center py-4">
-                    No moves yet. Start playing!
-                  </p>
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <ClockIcon className="w-8 h-8 text-surface-400 mb-2 opacity-50" />
+                    <p className="text-surface-500 dark:text-surface-400 text-sm">
+                      No moves yet. Start playing!
+                    </p>
+                  </div>
                 ) : (
-                  <div className="max-h-80 overflow-y-auto scrollbar-hide space-y-2">
+                  <div className="max-h-80 overflow-y-auto scrollbar-hide space-y-2 pr-1">
                     {gameHistory.map((historyItem, idx) => (
-                      <div 
+                      <motion.div 
                         key={idx}
-                        className="text-sm p-2 rounded border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-800"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="text-sm p-3 rounded-lg border border-surface-200 dark:border-surface-600 bg-white/90 dark:bg-surface-800/90 shadow-sm hover:shadow-md transition-shadow"
                       >
                         <div className="flex items-center gap-2">
                           {historyItem.player === 'X' ? (
@@ -266,7 +354,7 @@ export default function MainFeature({ onGameEnd }) {
                             Move {idx + 1}: Position {historyItem.position + 1}
                           </span>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 )}
