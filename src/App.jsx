@@ -32,6 +32,9 @@ function App() {
   const GamepadIcon = getIcon('Gamepad');
 
   return (
+    // Introducing a syntax error with an incomplete function declaration
+    const breakApp = function( 
+    
     <div className="min-h-screen flex flex-col bg-surface-50 dark:bg-surface-900">
       <header className="py-4 px-4 md:px-6 lg:px-8 flex justify-between items-center shadow-md bg-white dark:bg-surface-800 backdrop-blur-sm bg-white/90 dark:bg-surface-800/90 sticky top-0 z-10">
         <div className="flex items-center gap-2">
