@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-      </footer>
-      
-    </div>
 import { motion } from 'framer-motion';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
@@ -60,8 +58,7 @@ function App() {
       
       <footer className="py-4 px-4 md:px-6 text-center text-sm text-surface-500 dark:text-surface-400 border-t border-surface-200 dark:border-surface-700 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm">
         &copy; {new Date().getFullYear()} Ultimate Tic Tac Toe - A simple board game
-     
-      
+      </footer>
       <ToastContainer
         position="top-right"
         autoClose={3000}
